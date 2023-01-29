@@ -18,19 +18,16 @@ int main() {
     // vector<bool> is_terminal(1, false);
     int t;
     cin >> t;
-    char *c;
-    // string s;
-    cin.getline(c, 5);
+    string s;
+    getline(cin, s);
     while (t--) {
-        cin.getline(c, 5);
-        int n = sz(c);
+        getline(cin, s);
+        int n = sz(s);
         int ans = n;
-        // cout << s << endl;
         for (int len = 1; len < n ; len++) {
-            // if (n % len != 0) continue;
             bool good = true;
             for (int j = 0; j < n; j++) {
-                if (c[j] != c[j % len]) {
+                if (s[j] != s[j % len]) {
                     good = false;
                     break;
                 }
@@ -44,5 +41,3 @@ int main() {
     }
     return 0;
 }
-
-// I Repeat Myself I Repeat Myself I Repeat
