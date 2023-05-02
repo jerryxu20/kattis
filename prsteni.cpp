@@ -13,6 +13,7 @@ typedef vector<pii> vpii;
 typedef vector<int> vi;
 typedef vector<vi> vii;
 typedef vector<vii> viii;
+typedef vector<string> vs;
 
 #define pb push_back
 #define mp make_pair
@@ -20,8 +21,16 @@ typedef vector<vii> viii;
 // vii delta4 = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
 int solve(int tcase) {
-    
-
+    int n, a;
+    cin >> n >> a;
+    vi gear(n - 1);
+    for (auto &g: gear) cin >> g;
+    for (auto &g: gear) {
+        int top = a;
+        int bot = g;
+        int fac = gcd(top, bot);
+        cout << top/fac << "/" << bot/fac << endl;
+    }
     tcase++;
     return 0;
 }
