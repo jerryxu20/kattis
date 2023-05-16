@@ -7,7 +7,8 @@ int main() {
     cin >> a;
     string s;
     getline(cin, s);
-    cout << s << ' ';
+    getline(cin, s);
+    // cout << s << ' ';
     vector<char> brackets;
     for (int i = 0; i < a; i++) {
         if (s[i] == '(' || s[i] == '[' || s[i] == '{') {
