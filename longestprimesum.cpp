@@ -14,14 +14,6 @@ typedef pair<int, int> pii;
 int main() {
     ll N;
     cin >> N;
-    ll ans = 0;
-    if (N % 2 == 1) {
-        ans++;
-        N -= 3;
-    }
-    ans += N/2;
-    cout << ans << endl;
-    // max number of sums to create n
-    
+    cout << N/2 << endl;
     return 0;
 }
