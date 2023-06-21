@@ -1,107 +1,126 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#define rep(i, a, b) for(int i = a; i < (b); ++i)
-#define all(x) begin(x), end(x)
-#define sz(x) (int)(x).size()
 typedef long long ll;
-typedef pair<int, int> pii;
-typedef pair<ll, ll> pll;
-typedef pair<double, double> pdd;
-typedef tuple<int, int, int> tii;
-typedef vector<pii> vpii;
+typedef long double ld;
+typedef complex<ld> cd;
+
+typedef pair<int, int> pi;
+typedef pair<ll,ll> pl;
+typedef pair<ld,ld> pd;
+
 typedef vector<int> vi;
+typedef vector<ld> vld;
+typedef vector<ll> vl;
+typedef vector<pi> vpi;
+typedef vector<pl> vpl;
+typedef vector<cd> vcd;
+typedef vector<string> vs;
+typedef vector<double> vd;
 typedef vector<vi> vii;
 typedef vector<vii> viii;
-typedef vector<string> vs;
 
-#define pb push_back
+template<class T> using pq = priority_queue<T>;
+template<class T> using pqg = priority_queue<T, vector<T>, greater<T>>;
+
+#define FOR(i, a, b) for (int i=a; i<(b); i++)
+#define rep(i, a) for (int i=0; i<(a); i++)
+#define FORd(i,a,b) for (int i = (b)-1; i >= a; i--)
+#define F0Rd(i,a) for (int i = (a)-1; i >= 0; i--)
+#define trav(a,x) for (auto& a : x)
+
+#define sz(x) (int)(x).size()
+#define all(x) x.begin(), x.end()
 #define mp make_pair
+#define pb push_back
+#define f first
+#define s second
+#define lb lower_bound
+#define ub upper_bound
+#define ins insert
 
-vii delta4 = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
-vii delta2 = {{-1, 0}, {-1, 1}};
-// int ans = INT_MAX;
+const int MOD = 1000000007;
+const char nl = '\n';
+
+/*
+.... 0 (pad)
+#### 1
+..## 2
+#.#. 3
+...# 4
+*/
+
 int n, m;
-int ans = INT_MAX;
 
-vector<char> check_square(vs &grid, int i, int j) {
-    vector<char> a;
-    if (i != 0) {
-        int valid = 0;
-        for (auto &d: delta2) {
-            int ii = i + d[0];
-            int jj = j + d[1];
-            if (ii < 0 || jj < 0 || ii >= n || jj >= m) continue;
-            if (grid[ii][jj] == 'k') valid++;
-       }
-       if (valid == 0) return a;
-    }
-
-    for (auto &d: delta4) {
-        int ii = i + d[0];
-        int jj = j + d[1];
-        if (ii < 0 || jj < 0 || ii >= n || jj >= m) continue;
-        a.push_back(grid[ii][jj]);
-    }
-    return a;
-}
-
-void f(vs &grid, int idx, int moves) {
-    if (idx >= n*m) {
-        ans = min(ans, moves);
-        return;
-    }
-    if (moves >= ans) return;
-    // make a square here
-    int i = idx/m;
-    int j = idx % m; 
-    if (grid[i][j] == 'k') {
-        f(grid, idx + 1, moves);
-        return;
-    }    
-    vector<char> square = check_square(grid, i, j);
-    if (sz(square) == 4) {
-        for (auto &d: delta4) {
-            int ii = i + d[0];
-            int jj = j + d[1];
-            grid[ii][jj] = 'k';
-        }
-        f(grid, idx, moves + 1);
-        for (int k = 0; k < 4; k++) {
-            int ii = i + delta4[k][0];
-            int jj = j + delta4[k][1];
-            grid[ii][jj] = square[k];
+bool validsupport(int top, int bot) {
+    for (int i = 0; i < m; i++) {
+        // if the top needs support and the bottom has support
+        if (top & (1 << i) && bot & (1 << i)) {
+            // if previous square needs support then support it
+            // otherwise support next square
+            if (i > 0 && top & (1 << (i - 1))) {
+                top &= ~((1 << i) + (1 << (i - 1)));
+            } else {
+                top &= ~((1 << i) + (1 << (i + 1)));
+            }
         }
     }
-    if (grid[i][j] != '#') f(grid, idx + 1, moves);
-
-    return;
+    return __builtin_popcount(top) == 0;
 }
 
+bool goodcover(int top, int bot, int cover) {
+    // check if cover is valid
+    int ncover = cover;
+    for (int i = 0; i < m; i++) {
+        if (ncover & (1 << i) && !(ncover & (1 << (i + 1)))) return false;
+        if (ncover & (1 << i)) ncover &= ~(1 << (i + 1));
+    }
+    // check if the top row and bottom row are subsets of cover
+    return (top | bot | cover) == cover;
+}
 
-
-int solve(int tcase) {
+int solve(int tt) {
     cin >> n >> m;
-    vs grid(n);
-    for (auto &row: grid) cin >> row;
-    reverse(all(grid));
-    f(grid, 0, 0);
-    cout << ans << endl;
-    tcase++;
+    string s;
+    vi grid(n + 1);
+    FOR(i, 1, n + 1) {
+        cin >> s;
+        int row = 0;
+        for (int i = 0; i < m; i++) {
+            if (s[i]== '#') row += (1 << i);
+        }
+        grid[i] = row;
+    }
+
+    int mx = 1 << m;
+    vii dp(n/2 + 1, vi(mx, INT_MAX));
+    dp[0][0] = 0;
+    for (int i = 1; i <= n/2; i++) {
+        int toprow = i*2 - 1;
+        int botrow = i*2;
+        for (int j = 0; j < mx; j++) {
+            if (dp[i - 1][j] == INT_MAX) continue;
+            for (int k = 0; k < mx; k++) {
+                if (!validsupport(j, k) || !goodcover(grid[toprow], grid[botrow], k)) continue;
+                int boxes = __builtin_popcount(k)/2;
+                dp[i][k] = min(dp[i][k], boxes + dp[i - 1][j]);
+            }
+        }
+    }
+
+    cout << *min_element(all(dp.back())) << nl;
+    tt++;
     return 0;
 }
 
 int main() {
     cin.tie(0)->sync_with_stdio(0);
     cin.exceptions(cin.failbit);
-    int testcase = 1;
-    // cin >> testcase;
-    for (int i = 1; i <= testcase; i++) {
-        solve(i);
+    int T = 1;
+    // cin >> T;
+    for (int i = 1; i <= T; i++) {
+        if (solve(i)) break;
     }
-    // for (int i = 1; ; i++) {
-    //     if (solve(i)) break;
-    // }
-    testcase++;
+    T++;
     return 0;
 }
