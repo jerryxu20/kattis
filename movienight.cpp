@@ -115,12 +115,8 @@ int solve(int tt) {
     }
 
     ans--;
-    assert(ans >= 0);
     ans %= MOD;
     cout << (ans + MOD) % MOD << nl;
-
-
-    tt++;
     return 0;
 }
 

@@ -18,7 +18,6 @@ typedef vector<string> vs;
 #define pb push_back
 #define mp make_pair
 
-// vii delta4 = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 bool check(pii &a) {
     return a.first == a.second;
 }
@@ -74,7 +73,6 @@ int solve(int tt) {
 
     if (dfs(rects, 3)) cout << 1 << endl;
     else cout << 0 << endl;
-    tt++;
     return 0;
 }
 
@@ -82,13 +80,9 @@ int main() {
     cin.tie(0)->sync_with_stdio(0);
     cin.exceptions(cin.failbit);
     int t = 1;
-    // cin >> t;
     for (int i = 1; i <= t; i++) {
         solve(i);
     }
-    // for (int i = 1; ; i++) {
-    //     if (solve(i)) break;
-    // }
     t++;
     return 0;
 }
