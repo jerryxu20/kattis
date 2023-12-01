@@ -1,7 +1,5 @@
 n = int(input())
-notes = input().split()
-notes = [list(x) for x in notes]
-notes = [[x[0], int(x[1]) if len(x) > 1 else 1] for x in notes]
+notes = [[x[0], int(x[1]) if len(x) > 1 else 1] for x in input().split()]
 n = sum(x[1] for x in notes) + len(notes) - 1
 labels = ['G', 'F', 'E', 'D', 'C', 'B', 'A', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
 dotted = set(['F', 'D', 'B', 'g', 'e', 'a'])
