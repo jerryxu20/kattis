@@ -41,49 +41,42 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    ll n, r; cin >> n >> r;
+    vl pts(n);
+    trav(p, pts) cin >> p;
+    sort(all(pts));
+
+
+
+    vl ans;
+    while(sz(pts)) {
+        ll low = 0;
+        ll mx = 0;
+        ll choice = -1;
+        rep(i, 0, sz(pts)) {
+            while(pts[i] - pts[low] > 2 * r) {
+                low++;
+            }
+            // pts[low] is the right end point
+            if (i - low + 1 > mx) {
+                choice = pts[i] - r;
+                mx = i - low + 1;
+            }
+        }
+        ans.pb(choice);
+        vl npts;
+        rep(i, 0, sz(pts)) {
+            if (pts[i] < choice - r || pts[i] > choice + r) npts.pb(pts[i]);
+        }
+        pts = npts;
+    }
+    cout << sz(ans) << nl;
+    trav(a, ans) {
+        cout << a << ' ';
     }
 
-    trav(row, adj) {
-        sort(all(row));
-    }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
 
 
     tt++;

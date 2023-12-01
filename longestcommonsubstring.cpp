@@ -41,50 +41,47 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
+
 int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
+vector<vi> nxt(1, vi(26));
+vector<int> cnt(0);
+int N = 0;
+
+void add(string &s, int i, int id) {
+    int node = 0;
+    int len = 0;
+    for (; i < sz(s); i++) {
+        int idx = s[i] - 'a'; 
+        if (nxt[node][idx] == 0) {
+            if (id != 1) return;
+            nxt[node][idx] = ++N;
+            cnt.pb(1);
+            nxt.pb(vi(26));
         }
+        node = nxt[node][idx];
+        if (cnt[node] < id - 1) return;
+        cnt[node] = id;
+        ans = max(ans, ++len);
     }
-    seen[node] = -1;
+    return;
+}
+
+void update(string &s, int id) {
+    ans = 0;
+    for (int i = 0; i < sz(s); i++) {
+        add(s, i, id);
+    }
     return;
 }
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    int n; cin >> n;
+    string s;
+    rep(i, 0, n) {
+        cin >> s;
+        update(s, i + 1);
     }
-
-    trav(row, adj) {
-        sort(all(row));
-    }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
+    cout << ans << nl;
 
     tt++;
     return 0;

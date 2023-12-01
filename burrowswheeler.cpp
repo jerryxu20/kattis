@@ -41,50 +41,44 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
+
+struct SuffixArray {
+	vi sa, lcp;
+	SuffixArray(string& s, int lim=256) { // or basic_string<int>
+		int n = sz(s) + 1, k = 0, a, b;
+		vi x(all(s)+1), y(n), ws(max(n, lim)), rank(n);
+		sa = lcp = y, iota(all(sa), 0);
+		for (int j = 0, p = 0; p < n; j = max(1, j * 2), lim = p) {
+			p = j, iota(all(y), n - j);
+			rep(i,0,n) if (sa[i] >= j) y[p++] = sa[i] - j;
+			fill(all(ws), 0);
+			rep(i,0,n) ws[x[i]]++;
+			rep(i,1,lim) ws[i] += ws[i - 1];
+			for (int i = n; i--;) sa[--ws[x[y[i]]]] = y[i];
+			swap(x, y), p = 1, x[sa[0]] = 0;
+			rep(i,1,n) a = sa[i - 1], b = sa[i], x[b] =
+				(y[a] == y[b] && y[a + j] == y[b + j]) ? p - 1 : p++;
+		}
+		rep(i,1,n) rank[sa[i]] = i;
+		for (int i = 0, j; i < n - 1; lcp[rank[i++]] = k)
+			for (k && k--, j = sa[rank[i] - 1];
+					s[i + k] == s[j + k]; k++);
+	}
+};
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    string s;
+    while(getline(cin, s)) {
+        int n = sz(s);
+        s += s;
+        SuffixArray suff(s);
+        trav(i, suff.sa) {
+            if (i < n) {
+                cout << s[i + n - 1];
+            }
+        }
+        cout << endl;
     }
-
-    trav(row, adj) {
-        sort(all(row));
-    }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
 
     tt++;
     return 0;
@@ -92,7 +86,7 @@ int solve(int tt) {
 
 int main() {
     cin.tie(0)->sync_with_stdio(0);
-    cin.exceptions(cin.failbit);
+    // cin.exceptions(cin.failbit);
     int T = 1;
     // cin >> T;
     for (int i = 1; i <= T; i++) {

@@ -41,51 +41,57 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
+
 int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
+
+int dfs(int s, int t, int avail, vector<vii> &dp, vii &adj) {
+    // done
+    if (s == t && (avail & (1 << s)) == 0) return 0;
+    
+    // can loop back to start, which is bad
+    if (s != t && (avail & (1 << s))) return INT_MIN;
+
+    // cannot reach end
+    if (s != t && (avail & (1 << t)) == 0) return INT_MIN;
+    
+    if (dp[s][t][avail] != -1) return dp[s][t][avail];
+    
+    int ans = INT_MIN;
+    trav(nxt, adj[s]) {
+        if ((avail & (1 << nxt)) == 0) continue;
+        int cand = dfs(nxt, t, avail & ~(1 << nxt), dp, adj);
+        if (cand == INT_MIN) continue;
+        ans = max(ans, 1 + cand);
     }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
+    dp[s][t][avail] = ans;
+    // cout << s << " " << t << " " << bitset<k8>(avail).to_string() <<  " " << ans << nl;
+    return ans;
 }
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
+    cin >> n;
+    if (n == 0) return 1;
+
+    cin >> m;
+
+    vii adj(n);
+
     int a, b;
-    rep(i, 1, n) {
+    rep(i, 0, m) {
         cin >> a >> b;
-        a--; b--;
         adj[a].pb(b);
+        adj[b].pb(a);
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    if (sz(adj[0]) == 0) {
+        cout << 1 << nl;
+        return 0;
     }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
-
+    // start, end, avail
+    vector<vii> dp(n, vii(n, vi(1 << n, -1)));
+    int ans = dfs(0, 0, (1 << n) - 1, dp, adj); 
+    cout << ans << nl;
+    
     tt++;
     return 0;
 }
@@ -95,7 +101,7 @@ int main() {
     cin.exceptions(cin.failbit);
     int T = 1;
     // cin >> T;
-    for (int i = 1; i <= T; i++) {
+    for (int i = 1; ; i++) {
         if (solve(i)) break;
     }
     T++;

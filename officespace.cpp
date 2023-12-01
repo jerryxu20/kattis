@@ -41,62 +41,64 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
+
+vii cnt;
+int fill(int a, int b, int c, int d, int inc) {
+    int ans = 0;
+    for (int i = a; i < c; i++) {
+        for (int j = b; j < d; j++) {
+            cnt[i][j] += inc;
+            if (cnt[i][j] == 1) ans++;        
         }
     }
-    seen[node] = -1;
-    return;
+    return ans;
 }
 
+int n, m;
+
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    cnt.assign(n, vi(m, 0));
+    int N; cin >> N;
+    vector<tuple<int, int, int, int>> coords;
+    vs name;
+    rep(i, 0, N) {
+        int a, b, c, d;
+        string s; cin >> s;
+        cin >> a >> b >> c >> d;
+        // a--; b--; c--; d--;
+        name.pb(s);
+        coords.pb({a, b, c, d});
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    for (auto &[i, j, ii, jj]: coords) {
+        fill(i, j, ii, jj, 1);
     }
 
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
+    int uncon = 0;
+    int contest = n * m;
+    trav(row, cnt) {
+        uncon += count(all(row), 0);
+        contest -= count(all(row), 1);
     }
-    reverse(all(people));
+    contest -= uncon;
+    
+    cout << "Total " << n * m << endl;
+    cout << "Unallocated " << uncon << endl;
+    cout << "Contested " << contest << endl;
+    rep(i, 0, N) {
+        auto [a, b, c, d] = coords[i];
+        cout << name[i] << " " << fill(a, b, c, d, 0) << endl;
+    }
 
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
-
+    cout << endl;
     tt++;
     return 0;
 }
 
 int main() {
-    cin.tie(0)->sync_with_stdio(0);
-    cin.exceptions(cin.failbit);
     int T = 1;
-    // cin >> T;
-    for (int i = 1; i <= T; i++) {
-        if (solve(i)) break;
+    while(cin >> n >> m) {
+        solve(0);
     }
     T++;
     return 0;

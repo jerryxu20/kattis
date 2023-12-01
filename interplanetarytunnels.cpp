@@ -41,50 +41,42 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
+    int n, m; cin >> n >> m;
+    int s, t; cin >> s >> t;
+    vii adj(n);
+    while(m--) {
+        int a, b;
         cin >> a >> b;
-        a--; b--;
         adj[a].pb(b);
+        adj[b].pb(a);
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    queue<int> q;
+    q.push(s);
+    vi seen(n);
+    seen[s] = 1;
+    int ans = 0;
+    while(true) {
+        int x = sz(q);
+        while(x--) {
+            auto node = q.front();
+            q.pop();
+            if (node == t) {
+                cout << (ans + 1)/2 << nl;
+                return 0;
+            };
+            trav(nxt, adj[node]) {
+                if (seen[nxt] == 0) {
+                    q.push(nxt);
+                    seen[nxt] = 1;
+                }
+            }
+        }
+        ans++;
     }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
+    assert(false);
 
     tt++;
     return 0;

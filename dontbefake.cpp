@@ -41,50 +41,25 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    int n; cin >> n;
+    int m;
+    vector<int> cnt(90000);
+    rep(i, 0, n) {
+        cin >> m;
+        int a, b;
+        while(m--) {
+            cin >> a >> b;
+            rep(j, a, b + 1) {
+                cnt[j]++;
+            }
+        }
     }
-
-    trav(row, adj) {
-        sort(all(row));
-    }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
+    int mx = *max_element(all(cnt));
+    int c = count(all(cnt), mx);
+    cout << mx << endl;
+    cout << c << endl;
 
     tt++;
     return 0;

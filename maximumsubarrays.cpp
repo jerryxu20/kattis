@@ -19,7 +19,7 @@ typedef vector<bool> vb;
 typedef tuple<int,int,int> ti;
 typedef vector<string> vs;
 typedef vector<double> vd;
-typedef vector<vi> vii;
+typedef vector<vl> vii;
 typedef vector<vii> viii;
 
 template<class T> using PQ = priority_queue<T>;
@@ -41,50 +41,34 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    int n, k;
+    cin >> n >> k;
+    vi arr(n);
+    trav(a, arr) cin >> a;
+    vii dp(k + 1, vl(2, LLONG_MIN));
+    dp[0][0] = 0;
+    rep(i, 1, n + 1) {
+        FORd(j, 0, k + 1) {
+            if (j == 0) {
+                dp[j][0] = 0;
+                dp[j][1] = 0;
+                continue;
+            }
+            // take this number
+            if (dp[j][1] != LLONG_MIN) {
+                dp[j][1] = dp[j][1] + arr[i - 1];
+            }
+            if (dp[j - 1][0] != LLONG_MIN) {
+                dp[j][1] = max(dp[j][1], dp[j - 1][0] + arr[i - 1]);
+            }
+
+            // don't take this number
+            dp[j][0] = max(dp[j][1], dp[j][0]);
+        }
     }
-
-    trav(row, adj) {
-        sort(all(row));
-    }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
+    cout << dp.back()[0] << nl;
 
     tt++;
     return 0;

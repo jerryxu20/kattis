@@ -41,50 +41,75 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
+
+// [0, 1, 2, 3] -> [left, up, right, down]
+void push(vi &nums, bool flip = false) {
+    vi ans;
+    if (flip) reverse(all(nums));
+    rep(i, 1, sz(nums)) {
+        if (nums[i] == nums[i - 1]) {
+            nums[i - 1] += nums[i];
+            nums[i] = 0;
         }
     }
-    seen[node] = -1;
+    trav(num, nums) {
+        if (num != 0) {
+            ans.pb(num);
+        }
+    }
+    while(sz(ans) < 4) ans.pb(0);
+    nums = ans;
+    if (flip) reverse(all(nums));
+    return;
+}
+
+void movev(vii &grid, int dir) {
+    rep(j, 0, 4) {
+        vi nums;
+        rep(i, 0, 4) {
+            if (grid[i][j] != 0) nums.pb(grid[i][j]);
+        }
+        push(nums, dir == 3);
+        rep(i, 0, 4) {
+            grid[i][j] = nums[i];
+        }
+    }
+    return;
+}
+
+
+void moveh(vii &grid, int dir) {
+    trav(row, grid) {
+        vi nums;
+        trav(cell, row) {
+            if (cell != 0) nums.pb(cell);
+        }
+        push(nums, dir == 2);
+        rep(i, 0, 4) {
+            row[i] = nums[i];
+        }
+    }
     return;
 }
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    vii grid(4, vi(4));
+    trav(row, grid) {
+        trav(cell, row) cin >> cell;
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    int dir; cin >> dir;
+    if (dir == 1 || dir == 3) {
+        movev(grid, dir);
+    } else {
+        moveh(grid, dir);
     }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
+    trav(row, grid) {
+        trav(cell, row) {
+            cout << cell << " "; 
+        }
+        cout << nl;
     }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
 
     tt++;
     return 0;

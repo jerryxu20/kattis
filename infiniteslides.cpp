@@ -41,50 +41,39 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
+
+const double EPS = 1e-2;
+
+tuple<double, double, double> calc(double time, int vert) {
+    double z = vert * time;
+    double theta = time;
+
+    double x = cos(theta);
+    double y = sin(theta);
+
+    if (vert == 2) {
+        x += 1;
     }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
+    return {x, y, z};
 }
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    double w; cin >> w;
+
+
+    double ans = 1e9;
+    double t = w;
+    while(w < t + 1000) {
+        auto [x, y, z] = calc(w, 1);
+        auto [xx, yy, zz] = calc(w - t, 2);
+        double dx = x - xx;
+        double dy = y - yy;
+        double dz = z - zz;
+        double dis = sqrt(dx * dx + dy * dy + dz * dz);
+        ans = min(ans, dis);
+        w += EPS;
     }
-
-    trav(row, adj) {
-        sort(all(row));
-    }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
+    cout << setprecision(20) << ans << nl;
 
     tt++;
     return 0;

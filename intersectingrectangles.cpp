@@ -41,51 +41,65 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
+
+bool check(vector<pair<pi, pi>> &rects) {
+    // time, index. negative index is insertion, pos index is removal
+    PQG<pair<int, int>> pq;
+
+    // 0, insert
+    // 1, remove
+
+    rep(i, 0, sz(rects)) {
+        auto &[x, _] = rects[i];
+        pq.push({x.first, -(i + 1)});
+        pq.push({x.second, (i + 1)});
     }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
+
+    set<int> walls;
+
+    while(sz(pq)) {
+        auto [_, type] = pq.top();
+        pq.pop();
+        int idx = abs(type) - 1;
+        auto &[__, y] = rects[idx];
+        if (type < 0) {
+            if (walls.count(y.first) || walls.count(y.second)) return false;
+            walls.insert(y.first);
+            walls.insert(y.second);
+            auto it = walls.find(y.first);
+            it++;
+            if (*it != y.second) return false;
+        } else {
+            walls.erase(y.first);
+            walls.erase(y.second);
         }
     }
-    seen[node] = -1;
-    return;
+    return true;
 }
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    int n; cin >> n;
+    
+    // (x1, x2), (y1, y2)
+    vector<pair<pi, pi>> rects(n);
+    for (auto &[x, y]: rects) {
+        cin >> x.first >> y.first >> x.second >> y.second;
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    if (!check(rects)) {
+        cout << 1 << nl;
+        return 0;
+    }
+    
+    for (auto &[x, y]: rects) {
+        swap(x, y);
     }
 
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
+    if (!check(rects)) {
+        cout << 1 << nl;
+        return 0;
     }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
-
+    cout << 0 << nl;
     tt++;
     return 0;
 }

@@ -41,50 +41,61 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
+
+map<ll, ll> factor(ll a) {
+    ll div = 2;
+    map<ll, ll> ans;
+    while(div * div <= a) {
+        while(a % div == 0) {
+            a /= div;
+            ans[div]++;
         }
+        div++;
     }
-    seen[node] = -1;
-    return;
+    if (a > 1) ans[a]++;
+    return ans;
+}
+
+ll bexp(int a, int b) {
+    if (b == 0) return 1;
+    if (b == 1) return a;
+    return bexp(a, b/2) * bexp(a, b/2) * bexp(a, b%2);
 }
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    ll n; cin >> n;
+    vl arr(n);
+    trav(a, arr) cin >> a;
+    sort(all(arr));
+
+    vector<map<ll, ll>> factors;
+    map<ll, pi> lcm;
+    trav(a, arr) {
+        map<ll, ll> facs = factor(a);
+        factors.push_back(facs);
+
+        for (auto [f, cnt]: facs) {
+            if (cnt > lcm[f].second) lcm[f].second = cnt;
+            if (lcm[f].first < lcm[f].second) swap(lcm[f].first, lcm[f].second);
+        }
     }
+    ll best = LLONG_MAX;
+    ll ans = 0;
+    int i = 0;
+    trav(facs, factors) {
+        ll cand = 1;
+        for (auto &[f, cnt]: facs) {
+            if (cnt < lcm[f].first) continue;
+            cand *= bexp(f, cnt - lcm[f].second);
+        }
 
-    trav(row, adj) {
-        sort(all(row));
+        if (cand < best) {
+            ans = arr[i];
+            best = cand;
+        }   
+        i++;
     }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
+    cout << ans << nl;
 
     tt++;
     return 0;

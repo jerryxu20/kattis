@@ -41,51 +41,68 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
+
+vi subtree, low;
 vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
+int ans = 0, ans2 = 0, tin = 0;
+void dfs(int node, int par) {
+    int id, reach;
+    id = reach = low[node] = ++tin;
+    int cnt = 0;
+    vi chunks;
+    bool art = false;
+    bool root = par == -1;
+    trav(nxt, adj[node]) if (nxt != par) {
+        if (low[nxt] == -1) {
+            dfs(nxt, node);
+            if (low[nxt] >= id && !root) art = true;
+            
+            chunks.pb(subtree[nxt]);
+            subtree[node] += subtree[nxt];
+
+            cnt++;
+        }
+        reach = min(reach, low[nxt]);
     }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
+
+    low[node] = reach;
+    
+    if (root && cnt > 1) art = true;
+    if (!art) return;
+
+    // this is a cut point
+    int mx = 0;
+    int sm = 0;
+    chunks.pb(sz(adj) - subtree[node]);
+    rep(i, 0, sz(chunks)) {
+        rep(j, 0, i) {
+            int pairs = chunks[i] * chunks[j];
+            mx = max(pairs, mx);
+            sm += pairs;
         }
     }
-    seen[node] = -1;
+    if (sm > ans) {
+        ans = sm;
+        ans2 = sm - mx;
+    }
     return;
 }
 
+
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
+    int n; cin >> n;
+    adj.resize(n + 1);
+    rep(i, 0, n) {
+        int a, b;
         cin >> a >> b;
-        a--; b--;
         adj[a].pb(b);
+        adj[b].pb(a);
     }
-
-    trav(row, adj) {
-        sort(all(row));
-    }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
-
+    // print # of pairs that get disconnected by destroying one junction, and 
+    subtree.resize(n + 1, 1);
+    low.resize(n + 1, - 1);
+    dfs(0, -1);
+    cout << ans << " " << ans2 << nl;
     tt++;
     return 0;
 }

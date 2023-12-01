@@ -41,51 +41,52 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
+    int n, m, l, s;
+    cin >> n >> m >> l >> s;
+
+    set<int> seen;
+    vector<vpi> adj(n);
+    
+    int a, b, w;
+    while(s--) {
+        cin >> a;
+        a--;
+        seen.insert(a);
+    }
+
+    while(m--) {
+        cin >> a >> b >> w;
+        w += l;
+
         a--; b--;
-        adj[a].pb(b);
+        adj[a].pb(mp(b, w));
+        adj[b].pb(mp(a, w));
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    PQG<pi> pq;
+    for (auto &node: seen) {
+        for (auto &[nxt, cost]: adj[node]) {
+            if (seen.count(nxt)) continue;
+            pq.push(mp(cost, nxt));
+        }
     }
 
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
+    ll ans = 0;
+    while(sz(pq)) {
+        auto [cost, node] = pq.top();
+        pq.pop();
+        if (seen.count(node)) continue;
+
+        ans += cost;
+        seen.insert(node);
+        for (auto &[nxt, cost]: adj[node]) {
+            if (seen.count(nxt)) continue;
+            pq.push(mp(cost, nxt));
+        }
     }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
-
+    cout << ans << endl;
     tt++;
     return 0;
 }
@@ -94,7 +95,7 @@ int main() {
     cin.tie(0)->sync_with_stdio(0);
     cin.exceptions(cin.failbit);
     int T = 1;
-    // cin >> T;
+    cin >> T;
     for (int i = 1; i <= T; i++) {
         if (solve(i)) break;
     }

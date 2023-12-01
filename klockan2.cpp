@@ -41,49 +41,34 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    int deg;
+    cin >> deg;
+ 
+    int min_speed = 60;
+    int hour_speed = 5;
+    int hour_deg = 0;
+    int min_deg = 0;
+    for (int min = 0; min <= 60 * 12; min++) {
+        int delta = (min_deg - hour_deg) % 3600;
+        delta += 3600;
+        delta %= 3600;
+        if (delta == deg) {
+            string hours = to_string(min/60);
+            string mins = to_string(min % 60);
+            if (sz(hours) != 2) hours = '0' + hours;
+            if (sz(mins) != 2) mins = '0' + mins;
+
+            cout << hours << ":" << mins << endl;
+            return 0;
+        }
+        min_deg += min_speed;
+        min_deg %= 3600;
+        hour_deg += hour_speed;
     }
 
-    trav(row, adj) {
-        sort(all(row));
-    }
 
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
 
 
     tt++;

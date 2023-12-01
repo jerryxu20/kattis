@@ -41,51 +41,41 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    int n, a, b;
+    double w, prob = 0;
+    cin >> n >> a >> b >> w;
+    int goal = max(n/2 + 1 - a, 0);
+    int m = n - a - b;
+    if (m < goal) {
+        cout << "RECOUNT!\n";
+        return 0;
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    vector<vd> dp(m + 1, vd(m + 1));
+    // dp[i]: Chance of getting i total votes
+    dp[0][0] = 1; 
+    rep(i, 1, m + 1) {
+        rep(j, 0, i + 1) {
+            // we didn't get this vote
+            dp[i][j] += 0.5 * dp[i - 1][j];
+            
+            // we got this vote
+            if (j > 0) dp[i][j] += 0.5 * dp[i - 1][j - 1];
+        }
     }
 
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
+    rep(i, goal, m + 1) {
+        prob += dp.back()[i];
     }
-    reverse(all(people));
+    prob *= 100;
 
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
-
+    if (prob > w) {
+        cout << "GET A CRATE OF CHAMPAGNE FROM THE BASEMENT!\n";
+    } else {
+        cout << "PATIENCE, EVERYONE!\n";
+    }
     tt++;
     return 0;
 }
@@ -94,7 +84,7 @@ int main() {
     cin.tie(0)->sync_with_stdio(0);
     cin.exceptions(cin.failbit);
     int T = 1;
-    // cin >> T;
+    cin >> T;
     for (int i = 1; i <= T; i++) {
         if (solve(i)) break;
     }

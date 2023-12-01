@@ -41,50 +41,11 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
-
+const int MX = 1e4;
+vl ans(MX + 1, 1), pdiv(MX + 1);
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
-    }
-
-    trav(row, adj) {
-        sort(all(row));
-    }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
+    int n, k; cin >> k >> n;
+    cout << k << " " << ans[n] << nl;
 
     tt++;
     return 0;
@@ -94,7 +55,39 @@ int main() {
     cin.tie(0)->sync_with_stdio(0);
     cin.exceptions(cin.failbit);
     int T = 1;
-    // cin >> T;
+    cin >> T;
+	iota(all(pdiv), 0);
+
+    rep(i, 2, MX + 1) {
+        if (pdiv[i] == i) {
+            for (int j = 2 * i; j <= MX; j += i) {
+                pdiv[j] = i;
+            }
+        }		
+    }
+
+    rep(i, 2, MX + 1) {
+        int p = pdiv[i];
+        if (p == i) {
+            ans[i] = p - 1;
+            continue;
+        }
+        int x = i;
+        ll a = 1;
+        while(x % p == 0) {
+            a *= p;
+            x/=p;
+        }
+        a -= a/p;
+        a *= ans[x];
+        ans[i] = a;
+    }
+
+    ans[2] += 2;
+    rep(i, 3, MX + 1) {
+        ans[i] += ans[i - 1];
+    }
+
     for (int i = 1; i <= T; i++) {
         if (solve(i)) break;
     }

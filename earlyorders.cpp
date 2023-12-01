@@ -41,50 +41,47 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    int n, k; cin >> n >> k;
+    
+    vi nums(n), last(k + 1);
+    trav(num, nums) cin >> num;
+    
+    rep(i, 0, n) {
+        last[nums[i]] = i;
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    vi ans, in_stack(k + 1);
+    deque<int> stack;
+    rep(i, 0, n) {
+        // already took this number
+        if (last[nums[i]] == -1) continue;
+
+        if (!in_stack[nums[i]]) {
+            while(sz(stack) && stack.back() > nums[i]) {
+                in_stack[stack.back()] = 0;
+                stack.pop_back();
+            } 
+            stack.pb(nums[i]);
+            in_stack[nums[i]] = 1;
+        }
+
+        if (last[nums[i]] != i) continue;            
+        while(sz(stack) && stack.front() <= nums[i]) {
+            ans.pb(stack.front());
+            last[stack.front()] = -1;
+            stack.pop_front();
+        }
+
     }
 
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
+    assert(sz(ans) == k);
+    assert(sz(set<int>(all(ans))) == k);
+    trav(a, ans) {
+        cout << a << " ";
     }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
+    cout << endl;
 
     tt++;
     return 0;

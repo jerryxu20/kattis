@@ -41,50 +41,28 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    int n;
+    cin >> n;
+    vl citations(n);
+    trav(cite, citations) cin >> cite;
+
+    vi buckets(n + 1);
+
+    trav(cite, citations) {
+        cite = min(cite, (ll) n);
+        buckets[cite]++;
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    int amount = 0;
+    FORd(i, 0, n + 1) {
+        amount += buckets[i];
+        if (amount >= i) {
+            cout << i << endl;
+            return 0;
+        }
     }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
 
     tt++;
     return 0;

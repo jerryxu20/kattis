@@ -41,50 +41,65 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
+int t = 0;
 vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
+void dfs(int node, vi&t1, vi &t2) {
+    t1[node] = t++;
     trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
+        dfs(nxt, t1, t2); 
     }
-    seen[node] = -1;
+    t2[node] = t;
     return;
 }
-
 int solve(int tt) {
-    cin >> n >> m;
+    int n; cin >> n;
     adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    vi root;
+    rep(i, 0, n) {
+        int par; cin >> par;
+        if (par == 0) {
+            root.pb(i);
+            continue;
+        }
+        adj[par - 1].pb(i);
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    vi t1(n), t2(n);
+    trav(r, root) {
+        dfs(r, t1, t2);
     }
+    vi inside(n, -2);
+    int q; cin >> q;
+    while(q--) {
+        int m; cin >> m;
+        vi idx(m);
+        trav(i, idx) {
+            cin >> i;
+            i--;
+        }
+        trav(i, idx) {
+            trav(j, idx) {
+                if (i == j) continue;
+                // does i contain j
+                if (t1[i] < t1[j] && t2[i] >= t2[j]) {
+                    inside[j] = q;
+                }
+                if (t1[j] < t1[i] && t2[j] >= t2[i]) {
+                    inside[i] = q;
+                }
+            }
+        }
 
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
+        ll ans = 0;
+        trav(i, idx) {
+            if (inside[i] == q) continue;
+            ans += t2[i] - t1[i];
+            inside[i] = q;
+        }
+        cout << ans << endl;
+
+
     }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
 
     tt++;
     return 0;

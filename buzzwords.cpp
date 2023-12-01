@@ -41,63 +41,53 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
+
+vector<vector<int>> nxt(1, vi(26));
+vector<int> cnt(1);
+int N = 0;
+int solve(string s) {
+    int n = sz(s);
+    vi ans(n + 1);
+    cnt.assign(sz(nxt), 0);
+    rep(i, 0, sz(s)) {
+        int len = 1;
+        int node = 0;
+        rep(j, i, n) {
+            int idx = s[j] - 'A';
+            if (nxt[node][idx] == 0) {
+                nxt.pb(vi(26));
+                nxt[node][idx] = ++N;
+                cnt.pb(0);
+            }
+            node = nxt[node][idx];
+            cnt[node]++;
+            ans[len] = max(ans[len], cnt[node]);
+            len++;
         }
     }
-    seen[node] = -1;
-    return;
-}
-
-int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    trav(a, ans) {
+        if (a == 0) continue;
+        if (a == 1) break;
+        cout << a << endl;
     }
-
-    trav(row, adj) {
-        sort(all(row));
-    }
-
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
-    }
-    reverse(all(people));
-
-    dfs(0, people);
-    cout << m - sz(people) << nl;
-
-
-    tt++;
+    cout << endl;
     return 0;
 }
 
-int main() {
-    cin.tie(0)->sync_with_stdio(0);
-    cin.exceptions(cin.failbit);
-    int T = 1;
-    // cin >> T;
-    for (int i = 1; i <= T; i++) {
-        if (solve(i)) break;
+string strip(string &s) {
+    string ans = "";
+    trav(c, s) {
+        if (c == ' ') continue;
+        ans += c;
     }
-    T++;
+    return ans;
+}
+
+int main() {
+    string s;
+    while(getline(cin, s)) {
+        solve(strip(s));
+    }
+
     return 0;
 }

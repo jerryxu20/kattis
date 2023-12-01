@@ -41,63 +41,60 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
-vii adj;
-int n, m;
-int ans = 0;
-vector<int> seen;
-void dfs(int node, vi &people) {
-    seen[node] = 1;
-    while(sz(people) && (seen[people.back()] == 1)) {
-        people.pop_back();
-    }
-    trav(nxt, adj[node]) {
-        dfs(nxt, people);
-        while(sz(people) && (seen[people.back()] == 1)) {
-            people.pop_back();
-        }
-    }
-    seen[node] = -1;
-    return;
-}
 
 int solve(int tt) {
-    cin >> n >> m;
-    adj.resize(n);
-    seen.resize(n);
-    int a, b;
-    rep(i, 1, n) {
-        cin >> a >> b;
-        a--; b--;
-        adj[a].pb(b);
+    string s;
+    vs grid;
+    bool last = true;
+    while(getline(cin, s)) {
+        if (sz(s) == 0) {
+            last = false;
+            break;
+        }
+        grid.pb(s);
     }
 
-    trav(row, adj) {
-        sort(all(row));
+    int n = sz(grid);
+    int m = sz(grid[0]);
+
+    vs line(m, string(n, ' '));
+    rep(i, 0, n) {
+        rep(j, 0, m) {
+            line[j][i] = grid[i][j];
+        }
     }
 
-    vi people(m);
-    trav(p, people) {
-        cin >> p;
-        p--;
+    vi stars;
+    trav(ss, line) {
+        int x = find(all(ss), '*') - ss.begin();
+        stars.pb(x);
     }
-    reverse(all(people));
 
-    dfs(0, people);
-    cout << m - sz(people) << nl;
+    sort(all(stars));
 
+    int i = 0;
+    trav(loc, stars) {
+        line[i++] = string(loc, '.') + '*' + string(n - loc - 1, '.');
+    }
+    reverse(all(line));
 
-    tt++;
+    rep(i, 0, n) {
+        rep(j, 0, m) {
+            cout << line[j][i];
+        }
+        cout << nl;
+    }
+    cout << nl;
+    if (last) return 1;
+
     return 0;
 }
 
 int main() {
     cin.tie(0)->sync_with_stdio(0);
-    cin.exceptions(cin.failbit);
     int T = 1;
-    // cin >> T;
-    for (int i = 1; i <= T; i++) {
+    for (int i = 1; ; i++) {
         if (solve(i)) break;
     }
-    T++;
     return 0;
 }
