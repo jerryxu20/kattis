@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define double long double
 typedef long long ll;
 // typedef long double ld;
 // typedef complex<ld> cd;
@@ -50,10 +49,12 @@ double cross(pd &a, pd &b) {
 // Compute (x chose k - 2)/(k choose n) for k - 2 <= x <= n - 2
 // Compute in parts to keep result reasonable at all stages (not massive and not tiny)
 void comp_odds() {
+    // Start with result for x = n - 2
     double res = k * (k - 1);
     for (int i = n; i > n - 2; i--) {
         res *= 1.0/(double)i;
     }
+
 
     odds[n - 2] = res;
     for (int i = n - 3; i >= 0; i--) {

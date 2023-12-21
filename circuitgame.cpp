@@ -42,6 +42,8 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 const int MOD = 1000000007;
 const char nl = '\n';
 
+int c, n, m, t;
+
 struct Dinic {
 	struct Edge {
 		int to, rev;
@@ -85,46 +87,50 @@ struct Dinic {
 	bool leftOfMinCut(int a) { return lvl[a] != 0; }
 };
 
-int n, m, a, b;
-
-int id(int i, int j) {
-    return i * m + j;
-}
-
-vpi delta = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
 int solve(int tt) {
-    cin >> n >> m;
-    cin >> a >> b;
-    vs grid(n);
-    trav(s, grid) cin >> s;
+    cin >> c >> n >> m >> t;
 
-    int sink = n * m;
-    int source = n * m + 1;
+    // there is power if they are hooked up to opposite things
+    // no path from terminal 1 to 2
+    // pass test if there is no power
+    Dinic flow(n);
 
+    vector<tuple<int, int, int>> edges(m);
 
-    Dinic flow(n * m + 2);
-
-    rep(i, 0, n) {
-        rep(j, 0, m) {
-            trav(d, delta) {
-                int ii = i + d.first;
-                int jj = j + d.second;
-                if (ii < 0 || ii >= n || jj < 0 || jj >= m) continue;
-                int cost = a;
-                // if (grid[i][j] == grid[ii][jj]) cost = 0;
-                flow.addEdge(id(i, j), id(ii, jj), cost);
-            }
-            if (grid[i][j] == '#') {
-                flow.addEdge(source, id(i, j), b);
-            } else {
-                flow.addEdge(id(i, j), sink, b);
-            }
-        }
+    for (auto &[a, b, c]: edges) {
+        cin >> a >> b >> c;
+        a--; b--;
+        flow.addEdge(a, b, c);
+        flow.addEdge(b, a, c);
     }
 
-    cout << flow.calc(source, sink) << endl;
 
+    
+    vector<tuple<int, int, int>> tests(t);
+    for (auto &[u, v, r]: tests) {
+        cin >> u >> v >> r;
+        u--; v--;
+    }
+    ll ans = 0;
+    ll sm = 0;
+    for (auto &[u, v, r]: tests) {
+        Dinic cur = flow;
+        cur.addEdge(u, v, 1e9);
+        cur.addEdge(v, u, 1e9);
+        flow = cur;
+        ll cost = cur.calc(0, 1);
+        // cout << cost << endl;
+        if (cost > c) break;
+        sm += r;
+
+        ans = max(ans, sm - cost);
+    }
+
+    if (ans == 0) {
+        cout << "The only winning move is not to play.\n";
+        return 0;
+    }
+    cout << ans << endl;
     tt++;
     return 0;
 }
