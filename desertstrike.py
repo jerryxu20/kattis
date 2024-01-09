@@ -1,4 +1,3 @@
-
 MOD = 10 ** 9 + 9
 
 k, w = map(int, input().split())
