@@ -28,7 +28,7 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 #define rep(i, a, b) for (int i=a; i<(b); i++)
 #define FOR(i, a) for (int i=0; i<(a); i++)
 #define FORd(i,a,b) for (int i = (b)-1; i >= a; i--)
-#define F0Rd(i,a) for (int i = (a)-1; i >= 0; i--)
+#define F0Rd(i,a) for (int i = a)-1; i >= 0; i--)
 #define trav(x,A) for (auto& x : A)
 
 #define sz(x) (int)(x).size()
@@ -42,60 +42,70 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 const int MOD = 1000000007;
 const char nl = '\n';
 
-vl dijk(vl &box) {
-    ll n = box[0];
-    vl ans(n, LLONG_MAX);
-    ans[0] = 0;
-
-    vector<vpi> adj(n);
-    rep(i, 0, n) {
-        trav(b, box) {
-            int nxt = (i + b) % n;
-            adj[i].pb({nxt, b});
-        }
+struct UF {
+    vi id;
+    UF(int n) {
+        id.resize(n);
+        iota(all(id), 0);
     }
 
-    PQG<pl> pq;
-    pq.push({0, 0});
-
-    while(sz(pq)) {
-        auto [d, node] = pq.top();
-        pq.pop();
-        if (ans[node] != d) continue;
-
-        for (auto &[nxt, weight]: adj[node]) {
-            ll cand = d + weight;
-            if (ans[nxt] <= cand) continue;
-            ans[nxt] = cand;
-            pq.push({cand, nxt});
-        }
+    int find(int a) {
+        if (a == id[a]) return a;
+        id[a] = find(id[a]);
+        return id[a];
     }
 
-    return ans;
+    void join(int a, int b) {
+        a = find(a);
+        b = find(b);
+        id[a] = b;
+        return;
+    }
 
-
-
-
-}
+    bool connected(int a, int b) {
+        return find(a) == find(b);
+    }
+};
 
 
 int solve(int tt) {
-    int n, m;
-    cin >> n >> m;
+    int n, m, q; cin >> n >> m >> q;
 
-    vl box(n);
-    trav(a, box) cin >> a;
+    vpi edges(m);
+    for (auto &[a, b]: edges) {
+        cin >> a >> b;
+    }
 
-    vl dis = dijk(box);
-
-    ll s = box[0];
-    while(m--) {
-        ll x; cin >> x;
-        if (dis[x % s] <= x)  {
-            cout << 1 << " ";
-        } else {
-            cout << 0 << " ";
+    vector<ti> queries(q);
+    set<pi> destroyed;
+    for (auto &[type, a, b]: queries) {
+        cin >> type >> a >> b;
+        if (type == 0) {
+            destroyed.insert(mp(a, b));
         }
+    }
+
+    UF uf(n);
+    for (auto &[a, b]: edges) {
+        if (!destroyed.count(mp(a, b))) {
+            uf.join(a, b);
+        }
+    }
+
+    reverse(all(queries));
+    vector<string> ans;
+    for (auto &[type, a, b]: queries) {
+        if (type == 0) {
+            uf.join(a, b);
+        } else {
+            ans.pb( (uf.connected(a, b) ? "safe": "unsafe") ); 
+        }
+
+
+    }
+
+    FORd(i, 0, sz(ans)) {
+        cout << ans[i] << nl;
     }
 
     tt++;

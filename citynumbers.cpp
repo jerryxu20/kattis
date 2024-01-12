@@ -42,62 +42,61 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 const int MOD = 1000000007;
 const char nl = '\n';
 
-vl dijk(vl &box) {
-    ll n = box[0];
-    vl ans(n, LLONG_MAX);
-    ans[0] = 0;
-
-    vector<vpi> adj(n);
-    rep(i, 0, n) {
-        trav(b, box) {
-            int nxt = (i + b) % n;
-            adj[i].pb({nxt, b});
-        }
+void dfs(int node, int par, vi &color, vii &adj) {
+    for (int nxt: adj[node]) {
+        if (nxt == par) continue;
+        color[nxt] = color[node] ^ 1;
+        dfs(nxt, node, color, adj);
     }
-
-    PQG<pl> pq;
-    pq.push({0, 0});
-
-    while(sz(pq)) {
-        auto [d, node] = pq.top();
-        pq.pop();
-        if (ans[node] != d) continue;
-
-        for (auto &[nxt, weight]: adj[node]) {
-            ll cand = d + weight;
-            if (ans[nxt] <= cand) continue;
-            ans[nxt] = cand;
-            pq.push({cand, nxt});
-        }
-    }
-
-    return ans;
-
-
-
-
+    return;
 }
 
+int n, k;
+
+map<pi, int> dp;
+
+int dfs(int node, int par, int bad, vii &adj) {
+    pi state = {node, bad};
+    if (dp.count(state)) return dp[state];
+    int ans = INT_MAX;
+    for (int c = 1; c <= min(3, k); c++) {
+        if (c == bad) continue;
+        int cand = c;
+        for (int nxt: adj[node]) {
+            if (nxt != par) {
+                cand += dfs(nxt, node, c, adj);
+            }
+        }
+        ans = min(ans, cand);
+    }
+    dp[state] = ans;
+    return ans;
+}
 
 int solve(int tt) {
-    int n, m;
-    cin >> n >> m;
-
-    vl box(n);
-    trav(a, box) cin >> a;
-
-    vl dis = dijk(box);
-
-    ll s = box[0];
-    while(m--) {
-        ll x; cin >> x;
-        if (dis[x % s] <= x)  {
-            cout << 1 << " ";
-        } else {
-            cout << 0 << " ";
-        }
+    cin >> n >> k;
+    if (n == 1) {
+        cout << 1 << endl;
+        return 0;
+    }
+    if (k == 1) {
+        cout << -1 << endl;
+        return 0;
     }
 
+    vii adj(n);
+    rep(i, 1, n) {
+        int a, b;
+        cin >> a >> b;
+        a--; b--;
+        adj[a].pb(b);
+        adj[b].pb(a);
+    }
+
+    int ans = dfs(n - 1, -1, -1, adj);
+    assert(ans != INT_MAX);
+
+    cout << ans << endl;
     tt++;
     return 0;
 }

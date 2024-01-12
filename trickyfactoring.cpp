@@ -41,62 +41,52 @@ template<class T> using PQG = priority_queue<T, vector<T>, greater<T>>;
 
 const int MOD = 1000000007;
 const char nl = '\n';
+const int MAX = 1e6 + 1;
 
-vl dijk(vl &box) {
-    ll n = box[0];
-    vl ans(n, LLONG_MAX);
-    ans[0] = 0;
+vi primes;
+int isprime[MAX];
 
-    vector<vpi> adj(n);
-    rep(i, 0, n) {
-        trav(b, box) {
-            int nxt = (i + b) % n;
-            adj[i].pb({nxt, b});
+void sieve() {
+    for (int i = 2; i <= MAX; i++) {
+        if (isprime[i] == 0) {
+            primes.pb(i);
+            for (int j = 2 * i; j <= MAX; j += i) {
+                isprime[j] = i;
+            }
         }
     }
-
-    PQG<pl> pq;
-    pq.push({0, 0});
-
-    while(sz(pq)) {
-        auto [d, node] = pq.top();
-        pq.pop();
-        if (ans[node] != d) continue;
-
-        for (auto &[nxt, weight]: adj[node]) {
-            ll cand = d + weight;
-            if (ans[nxt] <= cand) continue;
-            ans[nxt] = cand;
-            pq.push({cand, nxt});
-        }
-    }
-
-    return ans;
-
-
-
-
 }
 
+vpi factor(ll x, ll y) {
+    vpi ans;
+    for (auto &p: primes) {
+        int run = 0;
+        while(x % p == 0) {
+            x /= p;
+            run++;
+        }
+        while(y % p == 0) {
+            y /= p;
+            run++;
+        }
+        if (run) ans.pb({p, run});
+    }
+    return ans;
+}
 
 int solve(int tt) {
-    int n, m;
-    cin >> n >> m;
+    sieve();
+    ll a, c; cin >> a >> c;
 
-    vl box(n);
-    trav(a, box) cin >> a;
-
-    vl dis = dijk(box);
-
-    ll s = box[0];
-    while(m--) {
-        ll x; cin >> x;
-        if (dis[x % s] <= x)  {
-            cout << 1 << " ";
-        } else {
-            cout << 0 << " ";
-        }
+    vpi facs = factor(a, c);
+    
+    ll divs = 1;
+    for (auto &[_, cnt]: facs) {
+        divs *= (cnt + 1);
     }
+
+    ll ans = (divs + 1)/2 * 2;
+    cout << ans << endl;
 
     tt++;
     return 0;
