@@ -68,20 +68,10 @@ int solve(int tt) {
     vi left = subs(arr, 0, n/2 - 1);
     vi right = subs(arr, n/2, n - 1);
 
-    // trav(a, left) {
-    //     cout << a << " ";
-    // }
-    // cout << endl;
-
-    // trav(a, right) {
-    //     cout << a << " ";
-    // }
-    // cout << endl;
     int idx = sz(right) - 1;
     ll sm = right.back();
     ll ans = 0;
     ll cnt = 1;
-    // so as left increases, right can decrease
     trav(x, left) {
         while(idx > 0 && x + right[idx - 1] >= 200) {
             idx--;
